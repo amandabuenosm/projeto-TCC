@@ -1,0 +1,67 @@
+Sistema ERP = Possui 45 notas
+Base Governamental = Possui 48 notas
+
+📋 Gabarito de Testes Atualizado para o seu TCC:
+• NF 3003: Divergência no valor do Frete (R$ 80,00 x R$ 230,00)
+• NF 3012: Divergência na Alíquota de PIS (1,65% x 2,10%)
+• NF 3025: Desconto de R$ 150,00 omitido na SEFAZ, aumentando a Base de Cálculo e o Valor Total da Nota.
+• NF 3038: Divergência no Valor da Operação (R$ 17.740,30 x R$ 16.740,30)
+• Notas Ausentes na Base Governamental: Nas 3005, 3018, 3032
+• Notas Ausentes no Sistema ERP: NFs 3046, 3047, 3048, 3049
+• Notas Duplicadas na Base Governamental: NFs 3010 e 3030
+
+-------------------------------------------
+
+Pegamos como exemplo a nota 3003, com diferença no valor do frete, e pedimos para a IA analisar. 
+
+- RESUMO ANALÍTICO: O registro de identificador 3003 apresenta divergência exclusiva no campo 'Frete (R$)'. Na Fonte 1, o valor informado é de 80, enquanto na Fonte 2 o valor consta como 230. Todos os demais dados preenchidos estão coincidentes entre os registros.
+
+- POSSÍVEIS CAUSAS: 
+• Possível erro de digitação ou inserção incorreta do valor do frete em uma das fontes.
+• Provável atualização ou ajuste posterior no valor do frete que não foi sincronizado em ambas as fontes.
+
+- SUGESTÕES DE INVESTIGAÇÃO:
+✓ Verificar os comprovantes ou documentos de suporte originais para validar o valor exato do frete.
+✓ Alinhar os registros das duas conforme a comprovação obtida.
+
+- PADRÃO IDENTIFICADO: Divergência pontual restrita a um único campo de valor adicional.
+
+------------------------------------------
+
+Outro exemplo que pegamos foi da nota 3049, que se encontrava ausente na fonte de dados A, mas presente na fonte B.
+
+- RESUMO ANALÍTICO: O registro com identificador 3049 consta exclusivamente na Fonte 2, estando completamente ausente na Fonte 1. A entrada presente na Fonte 2 contém dados com data de emissão em 27/09/2026 vinculados ao emitente Vortex Suprimentos e Tecnologia Ltda.
+
+- POSSÍVEIS CAUSAS:
+• Possível falha ou atraso no processo de sincronização e integração de dados para a Fonte 1.
+• Provável não inclusão ou omissão manual do registro na Fonte 1.
+
+- SUGESTÕES DE INVESTIGAÇÃO: 
+✓ Verificar a existência dos dados e alinhar os registros das duas fontes.
+✓ Avaliar o fluxo de transmissão para garantir que registros presentes na Fonte 2 sejam refletidos na Fonte 1
+
+------------------------------------------
+
+Outro exemplo que pegamos foi da nota 3030, que se encontrava duplicada na fonte B.
+
+- RESUMO ANALÍTICO: O registro de identificador 3030 consta com apenas uma ocorrência na Fonte A e duas ocorrências na Fonte B. Os demais campos informados apresentam os mesmos valores entre os registros. Trata-se de uma divergência de duplicidade na Fonte B.
+
+- POSSÍVEIS CAUSAS: 
+• Possível duplicidade no envio ou processamento do registro na Fonte B.
+• Provável falha de sincronização entre as fontes que resultou na repetição do registro na Fonte B.
+
+- SUGESTÕES DE INVESTIGAÇÃO:
+✓ Verificar a causa da ocorrência adicional e alinhar os registros das duas fontes.
+✓ Avaliar o processo de carga ou integração da Fonte B para evitar registros repetidos.
+
+- PADRÃO IDENTIFICADO: Duplicidade de registro na Fonte B com dados idênticos aos da Fonte A.
+
+-------------------------------------------
+
+POR FIM, apresentou um resumo da análise agregada de todas as divergências encontradas nos relatórios, contendo:
+
+- FATOS OBSERVADOR NO MOTOR DETERMINÍSTICO: mostrou as diferenças observadas nos relatórios e o resultado, onde a taxa de conciliação foi de 77,1%, correspondendo a 37 registros conciliados de um total de 48 analisados.
+
+- HIPÓTESE GERADA PELA IA: Trouxe as hipóteses que sugerem o que pode ter causado essas variações nos relatórios.
+
+- PLANO RECOMENDADO DE AÇÃO PREVENTIVA E CORRETIVA: Mostra os passos a serem seguidos para fazer a conferência dos dados, para uma nova conciliação.
