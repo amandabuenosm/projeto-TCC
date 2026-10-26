@@ -1,0 +1,19 @@
+{
+  "name": "reconcilia-ia-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de Reconciliação de Dados Contábeis, Fiscais e Financeiros com IA - Monorepo",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"BACKEND,FRONTEND\" -c \"cyan.bold,purple.bold\" \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
