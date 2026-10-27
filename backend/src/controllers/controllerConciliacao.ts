@@ -107,39 +107,38 @@ export class ControllerConciliacao {
       }
 
       try {
-        const mapeamentoIA = await ServicoAnalisePorIA.sugerirMapeamentoCampos(
+        const registrosA = Array.isArray(req.body.recordsA)
+          ? req.body.recordsA
+          : dadosAmostraA
+            ? [dadosAmostraA]
+            : [];
+
+        const registrosB = Array.isArray(req.body.recordsB)
+          ? req.body.recordsB
+          : dadosAmostraB
+            ? [dadosAmostraB]
+            : [];
+
+        const mapeamento = ServicoSugestaoMapeamento.sugerir(
           cabecalhosA,
           cabecalhosB,
-          dadosAmostraA,
-          dadosAmostraB
+          registrosA,
+          registrosB
         );
-        const documentoA = ServicoSugestaoMapeamento.selecionarColunaDocumento(cabecalhosA);
-        const documentoB = ServicoSugestaoMapeamento.selecionarColunaDocumento(cabecalhosB);
-        const mapeamento = {
-          ...mapeamentoIA,
-          documentA: documentoA || '',
-          documentB: documentoB || '',
-        };
 
         res.status(200).json({
           success: true,
-          source: 'ia',
+          source: 'heuristica',
           mapping: mapeamento,
           mapeamento,
         });
+
         return;
-      } catch (err) {
-        console.warn('Mapeamento com IA indisponível, usando heurística:', err);
+      } catch (err: any) {
+        res.status(500).json({
+          error: err.message || 'Erro ao sugerir mapeamento de campos.',
+        });
       }
-
-      const mapeamento = ServicoSugestaoMapeamento.sugerir(cabecalhosA, cabecalhosB);
-
-      res.status(200).json({
-        success: true,
-        source: 'heuristica',
-        mapping: mapeamento,
-        mapeamento,
-      });
     } catch (err: any) {
       res.status(500).json({ error: err.message || 'Erro ao sugerir mapeamento de campos.' });
     }
