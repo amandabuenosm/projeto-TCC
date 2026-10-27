@@ -136,15 +136,16 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
   const confirmar = aoConfirmarMapeamento || onConfirmMapping || (() => {});
   const voltar = aoVoltar || onBack || (() => {});
 
-  const [mapeamento, setMapeamento] = useState({
+  const [mapeamento, setMapeamento] = useState<MapeamentoCampos>({
     documentA: '',
     documentB: '',
     amountA: '',
-    amountB: '',
+    amountB: '', 
     dateA: '',
     dateB: '',
     descriptionA: '',
     descriptionB: '',
+    additionalKeys: [],
   });
 
   const normalizarCabecalho = (valor: string) =>
@@ -279,33 +280,54 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
   };
 
   const aplicarMapeamento = (m: MapeamentoCampos) => {
-    const preenchido = inferirCamposAutomaticos({
-      documentA: m.documentA || '',
-      documentB: m.documentB || '',
-      amountA: m.amountA || '',
-      amountB: m.amountB || '',
-      dateA: m.dateA || '',
-      dateB: m.dateB || '',
-      descriptionA: m.descriptionA || '',
-      descriptionB: m.descriptionB || '',
-    });
+    const cabecalhosA = new Set(fA.headers);
+    const cabecalhosB = new Set(fB.headers);
+
+    const preenchido: MapeamentoCampos = {
+      documentA: cabecalhosA.has(m.documentA) ? m.documentA : '',
+      documentB: cabecalhosB.has(m.documentB) ? m.documentB : '',
+      amountA: cabecalhosA.has(m.amountA) ? m.amountA : '',
+      amountB: cabecalhosB.has(m.amountB) ? m.amountB : '',
+      dateA: cabecalhosA.has(m.dateA) ? m.dateA : '',
+      dateB: cabecalhosB.has(m.dateB) ? m.dateB : '',
+      descriptionA:
+        m.descriptionA && cabecalhosA.has(m.descriptionA)
+          ? m.descriptionA
+          : '',
+      descriptionB:
+        m.descriptionB && cabecalhosB.has(m.descriptionB)
+          ? m.descriptionB
+          : '',
+      additionalKeys: (m.additionalKeys || []).filter(
+        (par) =>
+          cabecalhosA.has(par.fieldA) &&
+          cabecalhosB.has(par.fieldB)
+      ),
+    };
 
     setMapeamento(preenchido);
-    const paresSugeridos = [
-      { fieldA: preenchido.amountA, fieldB: preenchido.amountB },
-      { fieldA: preenchido.dateA, fieldB: preenchido.dateB },
-      { fieldA: preenchido.descriptionA, fieldB: preenchido.descriptionB },
-    ].filter((par) => par.fieldA && par.fieldB);
-    const paresExistentes = (m.additionalKeys || []).filter(
-      (par) => par.fieldA !== preenchido.documentA && par.fieldB !== preenchido.documentB
+
+    const camposReservadosA = new Set([
+      preenchido.documentA,
+      preenchido.amountA,
+      preenchido.dateA,
+      preenchido.descriptionA,
+    ]);
+
+    const camposReservadosB = new Set([
+      preenchido.documentB,
+      preenchido.amountB,
+      preenchido.dateB,
+      preenchido.descriptionB,
+    ]);
+
+    const paresExistentes = (preenchido.additionalKeys || []).filter(
+      (par) =>
+        !camposReservadosA.has(par.fieldA) &&
+        !camposReservadosB.has(par.fieldB)
     );
-    const paresUnicos = [...paresSugeridos, ...paresExistentes].filter(
-      (par, indice, pares) =>
-        pares.findIndex(
-          (outro) => outro.fieldA === par.fieldA && outro.fieldB === par.fieldB
-        ) === indice
-    );
-    setParesAdicionais(paresUnicos);
+
+    setParesAdicionais(paresExistentes);
   };
 
   useEffect(() => {
@@ -320,13 +342,16 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
     setErroSugestao(null);
 
     api
-      .sugerirMapeamento(
+      .suggestMapping(
         fA.headers,
         fB.headers,
-        fA.rawRecords?.[0],
-        fB.rawRecords?.[0]
+        fA.rawRecords || [],
+        fB.rawRecords || []
       )
-      .then((res) => {
+      .then((res: {
+        mapping: MapeamentoCampos;
+        source: 'heuristica';
+      }) => {
         if (cancelado) return;
 
         aplicarMapeamento(res.mapping);
