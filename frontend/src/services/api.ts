@@ -47,25 +47,30 @@ export const api = {
     if (arquivoA) formulario.append('fileA', arquivoA);
     if (arquivoB) formulario.append('fileB', arquivoB);
 
-    const resposta = await axios.post(`${URL_BASE_API}/files/upload`, formulario, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const resposta = await axios.post(
+      `${URL_BASE_API}/files/upload`,
+      formulario,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
 
     return resposta.data;
   },
 
-  // Sugere um mapeamento inicial de campos cobrindo todas as colunas
-  async sugerirMapeamento(
-    cabecalhosA: string[],
-    cabecalhosB: string[],
-    amostraA?: Record<string, any>,
-    amostraB?: Record<string, any>
-  ): Promise<{ source: 'ia' | 'heuristica'; mapping: MapeamentoCampos }> {
+  // Sugere o mapeamento usando os cabeçalhos e uma amostra de registros.
+  // A sugestão é processada pelo backend, sem chamar o Gemini para esse fim.
+  async suggestMapping(
+    headersA: string[],
+    headersB: string[],
+    recordsA: Record<string, any>[] = [],
+    recordsB: Record<string, any>[] = []
+  ) {
     const resposta = await axios.post(`${URL_BASE_API}/mapping/suggest`, {
-      headersA: cabecalhosA,
-      headersB: cabecalhosB,
-      sampleA: amostraA,
-      sampleB: amostraB,
+      headersA,
+      headersB,
+      recordsA: recordsA.slice(0, 100),
+      recordsB: recordsB.slice(0, 100),
     });
 
     return resposta.data;
@@ -91,7 +96,10 @@ export const api = {
   // Obtém o resumo dos indicadores e anomalias de uma sessão
   async obterResumo(
     idSessao: string
-  ): Promise<{ summary: ResumoConciliacao; anomalies: ItemAnomalia[] }> {
+  ): Promise<{
+    summary: ResumoConciliacao;
+    anomalies: ItemAnomalia[];
+  }> {
     const resposta = await axios.get(
       `${URL_BASE_API}/reconciliation/${idSessao}/summary`
     );
@@ -107,7 +115,10 @@ export const api = {
       search?: string;
       aiAnalyzed?: boolean;
     }
-  ): Promise<{ divergences: ItemDivergencia[]; total: number }> {
+  ): Promise<{
+    divergences: ItemDivergencia[];
+    total: number;
+  }> {
     const resposta = await axios.get(
       `${URL_BASE_API}/reconciliation/${idSessao}/divergences`,
       { params: parametros }
@@ -145,19 +156,29 @@ export const api = {
     return `${URL_BASE_API}/reconciliation/${idSessao}/export`;
   },
 
-  // Aliases para compatibilidade total
+  // Aliases para compatibilidade
   checkHealth() {
     return this.verificarSaude();
   },
+
   getAIStatus() {
     return this.obterStatusIA();
   },
+
   uploadFiles(fileA?: File, fileB?: File) {
     return this.enviarArquivos(fileA, fileB);
   },
-  suggestMapping(headersA: string[], headersB: string[], sampleA?: Record<string, any>, sampleB?: Record<string, any>) {
-    return this.sugerirMapeamento(headersA, headersB, sampleA, sampleB);
+
+  // Alias em inglês: mantém o mesmo formato de argumentos do método principal
+  suggestMappingCompat(
+    headersA: string[],
+    headersB: string[],
+    recordsA: Record<string, any>[] = [],
+    recordsB: Record<string, any>[] = []
+  ) {
+    return this.suggestMapping(headersA, headersB, recordsA, recordsB);
   },
+
   runReconciliation(payload: {
     sourceAName: string;
     sourceBName: string;
@@ -168,18 +189,30 @@ export const api = {
   }) {
     return this.executarConciliacao(payload);
   },
+
   getSummary(sessionId: string) {
     return this.obterResumo(sessionId);
   },
-  getDivergences(sessionId: string, params?: { status?: string; search?: string; aiAnalyzed?: boolean }) {
+
+  getDivergences(
+    sessionId: string,
+    params?: {
+      status?: string;
+      search?: string;
+      aiAnalyzed?: boolean;
+    }
+  ) {
     return this.obterDivergencias(sessionId, params);
   },
+
   analyzeDivergence(sessionId: string, divergenceId: string) {
     return this.analisarDivergencia(sessionId, divergenceId);
   },
+
   analyzeBatch(sessionId: string) {
     return this.analisarLote(sessionId);
   },
+
   getExportUrl(sessionId: string) {
     return this.obterUrlExportacao(sessionId);
   },
