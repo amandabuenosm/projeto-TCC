@@ -169,10 +169,12 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
       if (/\b(numero|nro|nr|num|n)\b.*\b(documento|doc|nota|nf|fiscal|invoice|fatura)\b/.test(normalizado)) {
         return 120;
       }
+      if (/\b(cnpj|cpf)\b/.test(normalizado)) return 115;
       if (/\b(documento|document|invoice|fatura)\b/.test(normalizado)) return 110;
       if (/\b(nfe|nfce|nf)\b|\bnota\s*fiscal\b/.test(normalizado)) return 100;
       if (/\b(chave\s*(de\s*)?acesso|chave\s*(nfe|nf))\b/.test(normalizado)) return 95;
       if (/\b(nota|doc)\b/.test(normalizado)) return 80;
+      if (/\b(razao social|nome da empresa|empresa|nome do cliente|cliente)\b/.test(normalizado)) return 70;
       if (/^(id|identificador|referencia|ref)$/.test(normalizado)) return 30;
       return 0;
     };
@@ -207,8 +209,12 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
 
   const inferirCamposAutomaticos = (base: Partial<typeof mapeamento>) => {
     const preenchido = {
-      documentA: base.documentA || '',
-      documentB: base.documentB || '',
+      documentA: base.documentA && fA.headers.includes(base.documentA)
+        ? base.documentA
+        : '',
+      documentB: base.documentB && fB.headers.includes(base.documentB)
+        ? base.documentB
+        : '',
       amountA: base.amountA || '',
       amountB: base.amountB || '',
       dateA: base.dateA || '',
@@ -220,10 +226,8 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
     const ignorarA = new Set<string>();
     const ignorarB = new Set<string>();
 
-    const documentoA = encontrarCampoDocumento(fA.headers);
-    const documentoB = encontrarCampoDocumento(fB.headers);
-    preenchido.documentA = documentoA;
-    preenchido.documentB = documentoB;
+    preenchido.documentA ||= encontrarCampoDocumento(fA.headers);
+    preenchido.documentB ||= encontrarCampoDocumento(fB.headers);
 
     ignorarA.add(preenchido.documentA);
     ignorarB.add(preenchido.documentB);
@@ -533,7 +537,7 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
         {/* Campo principal */}
         <div className="grid grid-cols-1 gap-6">
           <CampoMapeamento
-            titulo="1. Número do Documento / Nota Fiscal *"
+            titulo="1. Identificador (documento, CNPJ ou razão social) *"
             cor="text-cyan-400"
             campoA={mapeamento.documentA}
             campoB={mapeamento.documentB}
@@ -552,7 +556,7 @@ export const ColumnMapper: React.FC<PropsMapeamentoColunas> = ({
 
         <div className="flex items-center gap-2 p-3 bg-slate-800/60 border border-slate-700 rounded-xl text-slate-300 text-xs">
           <Sparkles className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-          <span>Use o número da nota fiscal ou do documento como identificador. Valor, data e descrição podem ser incluídos ou removidos na seção opcional abaixo.</span>
+          <span>Use um campo consistente entre as fontes como identificador, como número do documento, CNPJ ou razão social. Valor, data e descrição podem ser incluídos ou removidos na seção opcional abaixo.</span>
         </div>
 
         {/* Campos adicionais */}

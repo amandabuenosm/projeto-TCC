@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchingService = exports.ServicoCorrespondencia = void 0;
+const normalizationService_js_1 = require("../normalization/normalizationService.js");
 class ServicoCorrespondencia {
     // Executa a comparação determinística entre as fontes e classifica os registros
     static executarCorrespondencia(registrosA, registrosB, mapeamento, config) {
@@ -125,13 +126,13 @@ class ServicoCorrespondencia {
             }
         }
         for (const par of mapeamento.additionalKeys || []) {
-            const valA = String(regA.originalData[par.fieldA] ?? '').trim();
-            const valB = String(regB.originalData[par.fieldB] ?? '').trim();
-            if (valA.toUpperCase() !== valB.toUpperCase()) {
+            const valorA = regA.originalData[par.fieldA];
+            const valorB = regB.originalData[par.fieldB];
+            if (!this.valoresAdicionaisIguais(par.fieldA, valorA, valorB, config.amountTolerance)) {
                 camposDivergentes.push({
                     fieldName: par.fieldA,
-                    valueA: regA.originalData[par.fieldA],
-                    valueB: regB.originalData[par.fieldB],
+                    valueA: valorA,
+                    valueB: valorB,
                 });
             }
         }
@@ -154,6 +155,20 @@ class ServicoCorrespondencia {
             divergentFields: camposDivergentes,
             aiAnalyzed: false,
         };
+    }
+    static valoresAdicionaisIguais(campo, valorA, valorB, tolerancia) {
+        const normalizarCabecalho = (texto) => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const cabecalho = normalizarCabecalho(campo);
+        const campoMonetario = /\b(valor|base de calculo|total|saldo|preco|price|amount|liquido|bruto|credito|debito|retencao|imposto|tributo)\b/.test(cabecalho);
+        if (campoMonetario) {
+            const numeroA = normalizationService_js_1.ServicoNormalizacao.normalizarValor(valorA);
+            const numeroB = normalizationService_js_1.ServicoNormalizacao.normalizarValor(valorB);
+            if (numeroA !== null && numeroB !== null) {
+                return Math.abs(numeroA - numeroB) <= tolerancia;
+            }
+        }
+        return String(valorA ?? '').trim().toUpperCase() ===
+            String(valorB ?? '').trim().toUpperCase();
     }
     static criarItemAusente(sequencia, regA, regB, status) {
         const reg = regA || regB;

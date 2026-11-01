@@ -74,32 +74,30 @@ class ControllerConciliacao {
                 return;
             }
             try {
-                const mapeamentoIA = await servicoAnalisePorIA_js_1.ServicoAnalisePorIA.sugerirMapeamentoCampos(cabecalhosA, cabecalhosB, dadosAmostraA, dadosAmostraB);
-                const documentoA = servicoSugestaoMapeamento_js_1.ServicoSugestaoMapeamento.selecionarColunaDocumento(cabecalhosA);
-                const documentoB = servicoSugestaoMapeamento_js_1.ServicoSugestaoMapeamento.selecionarColunaDocumento(cabecalhosB);
-                const mapeamento = {
-                    ...mapeamentoIA,
-                    documentA: documentoA || '',
-                    documentB: documentoB || '',
-                };
+                const registrosA = Array.isArray(req.body.recordsA)
+                    ? req.body.recordsA
+                    : dadosAmostraA
+                        ? [dadosAmostraA]
+                        : [];
+                const registrosB = Array.isArray(req.body.recordsB)
+                    ? req.body.recordsB
+                    : dadosAmostraB
+                        ? [dadosAmostraB]
+                        : [];
+                const mapeamento = servicoSugestaoMapeamento_js_1.ServicoSugestaoMapeamento.sugerir(cabecalhosA, cabecalhosB, registrosA, registrosB);
                 res.status(200).json({
                     success: true,
-                    source: 'ia',
+                    source: 'heuristica',
                     mapping: mapeamento,
                     mapeamento,
                 });
                 return;
             }
             catch (err) {
-                console.warn('Mapeamento com IA indisponível, usando heurística:', err);
+                res.status(500).json({
+                    error: err.message || 'Erro ao sugerir mapeamento de campos.',
+                });
             }
-            const mapeamento = servicoSugestaoMapeamento_js_1.ServicoSugestaoMapeamento.sugerir(cabecalhosA, cabecalhosB);
-            res.status(200).json({
-                success: true,
-                source: 'heuristica',
-                mapping: mapeamento,
-                mapeamento,
-            });
         }
         catch (err) {
             res.status(500).json({ error: err.message || 'Erro ao sugerir mapeamento de campos.' });

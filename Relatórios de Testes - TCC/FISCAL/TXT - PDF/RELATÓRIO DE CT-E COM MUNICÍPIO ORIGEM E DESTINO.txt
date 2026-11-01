@@ -1,0 +1,29 @@
+Relatório de CT-e com Município de Origem e Destino - MaxLog Transportes LTDA
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+Número do CT-e|CPF/CNPJ do Cliente|Razão Social/Nome do Cliente|Data de Emissão|Valor da Operação|UF do Remetente|Município do Remetente|UF do Destinatário|Município do Destinatário
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+352610000001001|12.345.678/0001-95|Transportadora Alfa Ltda|05/10/2026|1850,00|SC|Criciúma|PR|Curitiba
+352610000001002|234.567.890-12|João Carlos da Silva|06/10/2026|420,50|SC|Florianópolis|RS|Porto Alegre
+352610000001003|23.456.789/0001-03|Comercial Horizonte Ltda|07/10/2026|2750,90|SP|São Paulo|RJ|Rio de Janeiro
+352610000001004|345.678.901-23|Maria Aparecida Oliveira|08/10/2026|680,00|PR|Londrina|SC|Joinville
+352610000001005|34.567.890/0001-14|Distribuidora Central Ltda|09/10/2026|3920,75|RS|Caxias do Sul|SP|Campinas
+352610000001006|456.789.012-34|Pedro Henrique Costa|10/10/2026|315,90|SC|Tubarão|SC|Blumenau
+352610000001007|45.678.901/0001-25|Indústria Nova Era Ltda|11/10/2026|5680,00|MG|Belo Horizonte|GO|Goiânia
+352610000001008|567.890.123-45|Ana Paula Martins|12/10/2026|790,30|BA|Salvador|PE|Recife
+352610000001009|56.789.012/0001-36|Comercial São Lucas Ltda|13/10/2026|1240,00|PR|Curitiba|SP|Santos
+352610000001010|678.901.234-56|Carlos Eduardo Ferreira|14/10/2026|950,80|SC|Chapecó|PR|Maringá
+352610000001011|67.890.123/0001-47|Tecnologia e Logística Sul Ltda|15/10/2026|4380,50|SP|Ribeirão Preto|MG|Uberlândia
+352610000001012|789.012.345-67|Fernanda Souza Lima|16/10/2026|275,00|RS|Pelotas|RS|Santa Maria
+352610000001013|78.901.234/0001-58|Atacadista Bom Preço Ltda|17/10/2026|6150,00|GO|Anápolis|DF|Brasília
+352610000001014|890.123.456-78|Roberto Almeida Santos|18/10/2026|530,40|SC|Araranguá|RS|Gravataí
+352610000001015|89.012.345/0001-69|Autopeças Nacional Ltda|19/10/2026|2180,90|PR|Ponta Grossa|SP|São Paulo
+352610000001016|901.234.567-89|Mariana Rodrigues Alves|20/10/2026|410,00|BA|Feira de Santana|BA|Vitória da Conquista
+352610000001017|90.123.456/0001-70|Agroindustrial Vale Verde Ltda|21/10/2026|7890,00|MT|Cuiabá|MS|Campo Grande
+352610000001018|123.456.789-09|Lucas Mendes Ribeiro|22/10/2026|620,50|SC|Blumenau|SC|Itajaí
+352610000001019|01.234.567/0001-81|Comercial Estrela Ltda|23/10/2026|3420,00|RJ|Niterói|ES|Vitória
+352610000001020|234.567.890-12|Patrícia Gomes Carvalho|24/10/2026|185,90|SP|Franca|SP|Barretos
+352610000001021|12.345.678/0001-95|Transportes Rota Sul Ltda|25/10/2026|4950,75|SC|Criciúma|PR|Cascavel
+352610000001022|345.678.901-23|Ricardo Pereira Costa|26/10/2026|870,00|PE|Recife|AL|Maceió
+352610000001023|23.456.789/0001-03|Distribuidora Imperial Ltda|27/10/2026|7200,00|SP|Guarulhos|SC|Florianópolis
+352610000001024|456.789.012-34|Camila Fernandes Rocha|28/10/2026|340,80|PR|Cascavel|PR|Foz do Iguaçu
+352610000001025|34.567.890/0001-14|Indústria Progresso Ltda|29/10/2026|8950,00|MG|Contagem|SP|São José dos Campos

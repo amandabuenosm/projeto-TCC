@@ -2,145 +2,316 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MappingSuggestionService = exports.servicoSugestaoMapeamento = exports.ServicoSugestaoMapeamento = void 0;
 class ServicoSugestaoMapeamento {
+    static LIMITE_REGISTROS = 100;
     static selecionarColunaDocumento(cabecalhos) {
-        const candidatos = cabecalhos
-            .map((cabecalho) => ({
-            cabecalho,
-            pontuacao: this.pontuarColunaDocumento(cabecalho),
-        }))
-            .filter((candidato) => candidato.pontuacao > 0)
-            .sort((a, b) => b.pontuacao - a.pontuacao);
-        return candidatos[0]?.cabecalho || '';
-    }
-    static ehColunaMonetaria(cabecalho) {
-        const normalizado = this.normalizar(cabecalho);
-        return /\b(valor|amount|preco|price|total|saldo|liquido|bruto|credito|debito)\b/.test(normalizado);
-    }
-    // Sugere o mapeamento de todas as colunas por similaridade de nomes, permitindo ajustes pelo usuário
-    static sugerir(cabecalhosA, cabecalhosB) {
-        const usadosA = new Set();
-        const usadosB = new Set();
-        const docA = this.selecionarColunaDocumento(cabecalhosA);
-        const docB = this.selecionarColunaDocumento(cabecalhosB);
-        if (docA)
-            usadosA.add(docA);
-        if (docB)
-            usadosB.add(docB);
-        const valorA = this.selecionarColuna(cabecalhosA, usadosA, ['valor', 'total', 'amount', 'liquido', 'bruto']);
-        const valorB = this.selecionarColuna(cabecalhosB, usadosB, ['valor', 'total', 'amount', 'liquido', 'operacao']);
-        if (valorA)
-            usadosA.add(valorA);
-        if (valorB)
-            usadosB.add(valorB);
-        const dataA = this.selecionarColuna(cabecalhosA, usadosA, ['data', 'emissao', 'date', 'dt']);
-        const dataB = this.selecionarColuna(cabecalhosB, usadosB, ['data', 'movimento', 'date', 'dt', 'lancto']);
-        if (dataA)
-            usadosA.add(dataA);
-        if (dataB)
-            usadosB.add(dataB);
-        const descA = this.selecionarColuna(cabecalhosA, usadosA, ['descricao', 'desc', 'historico', 'cliente', 'observacao']);
-        const descB = this.selecionarColuna(cabecalhosB, usadosB, ['historico', 'desc', 'descricao', 'canal', 'observacao']);
-        if (descA)
-            usadosA.add(descA);
-        if (descB)
-            usadosB.add(descB);
-        const restantesA = cabecalhosA.filter((h) => !usadosA.has(h));
-        const restantesB = cabecalhosB.filter((h) => !usadosB.has(h));
-        const chavesAdicionais = [];
-        const listaCandidatosB = [...restantesB];
-        for (const campoA of restantesA) {
-            if (!listaCandidatosB.length)
-                break;
-            const indice = this.encontrarIndiceSimilar(campoA, listaCandidatosB);
-            if (indice !== -1) {
-                chavesAdicionais.push({ fieldA: campoA, fieldB: listaCandidatosB.splice(indice, 1)[0] });
-            }
-        }
-        return {
-            documentA: docA,
-            documentB: docB,
-            amountA: valorA || '',
-            amountB: valorB || '',
-            dateA: dataA || '',
-            dateB: dataB || '',
-            descriptionA: descA,
-            descriptionB: descB,
-            additionalKeys: chavesAdicionais,
-        };
-    }
-    static pontuarColunaDocumento(cabecalho) {
-        if (this.ehColunaMonetaria(cabecalho))
-            return 0;
-        const normalizado = this.normalizar(cabecalho);
-        let pontuacao = 0;
-        if (/\b(numero|nro|nr|num|n)\b.*\b(documento|doc|nota|nf|fiscal|invoice|fatura)\b/.test(normalizado)) {
-            pontuacao = 120;
-        }
-        else if (/\b(documento|document|invoice|fatura)\b/.test(normalizado)) {
-            pontuacao = 110;
-        }
-        else if (/\b(nfe|nfce|nf)\b|\bnota\s*fiscal\b/.test(normalizado)) {
-            pontuacao = 100;
-        }
-        else if (/\b(chave\s*(de\s*)?acesso|chave\s*(nfe|nf))\b/.test(normalizado)) {
-            pontuacao = 95;
-        }
-        else if (/\b(nota|doc)\b/.test(normalizado)) {
-            pontuacao = 80;
-        }
-        else if (/^(id|identificador|referencia|ref)$/.test(normalizado)) {
-            pontuacao = 30;
-        }
-        return pontuacao;
-    }
-    // Procura nos cabeçalhos uma coluna que corresponda às palavras-chave informadas
-    static selecionarColuna(cabecalhos, usados, palavrasChave) {
-        for (const palavraChave of palavrasChave) {
-            const correspondencia = cabecalhos.find((h) => !usados.has(h) && this.normalizar(h).includes(palavraChave));
-            if (correspondencia)
-                return correspondencia;
-        }
-    }
-    // Encontra, entre os campos disponíveis, o nome mais parecido com um campo de referência
-    static encontrarIndiceSimilar(campoA, candidatosB) {
-        const normA = this.normalizar(campoA);
-        let melhorIndice = -1;
-        let melhorPontuacao = 0;
-        candidatosB.forEach((campoB, idx) => {
-            const normB = this.normalizar(campoB);
-            const pontuacao = normA === normB
-                ? 100
-                : normA.includes(normB) || normB.includes(normA)
-                    ? 60
-                    : this.comprimentoPrefixoComum(normA, normB);
-            if (pontuacao > melhorPontuacao) {
-                melhorPontuacao = pontuacao;
-                melhorIndice = idx;
-            }
-        });
-        return melhorPontuacao > 0 ? melhorIndice : -1;
-    }
-    // Calcula quantos caracteres iniciais são iguais entre duas strings
-    static comprimentoPrefixoComum(a, b) {
-        let comprimento = 0;
-        while (comprimento < a.length && comprimento < b.length && a[comprimento] === b[comprimento]) {
-            comprimento++;
-        }
-        return comprimento;
-    }
-    // Normaliza o texto removendo acentos, espaços, símbolos e convertendo para minúsculas
-    static normalizar(val) {
-        return val
+        const normalizar = (valor) => valor
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, ' ')
             .trim();
+        const candidatos = cabecalhos
+            .map((cabecalho) => {
+            const nome = normalizar(cabecalho);
+            let pontuacao = 0;
+            if (/\b(chave de acesso|chave nfe)\b/.test(nome)) {
+                pontuacao = 100;
+            }
+            else if (/\b(numero|nro|nr|num)\b.*\b(documento|doc|nota|fiscal)\b/.test(nome)) {
+                pontuacao = 95;
+            }
+            else if (/\b(documento|document|invoice|fatura)\b/.test(nome)) {
+                pontuacao = 90;
+            }
+            else if (/\b(nfe|nfce|nota fiscal)\b/.test(nome)) {
+                pontuacao = 85;
+            }
+            return { cabecalho, pontuacao };
+        })
+            .filter((candidato) => candidato.pontuacao > 0)
+            .sort((a, b) => b.pontuacao - a.pontuacao);
+        return candidatos[0]?.cabecalho || '';
     }
-    // Alias para compatibilidade
-    static sugestao = ServicoSugestaoMapeamento.sugerir;
+    static sugerir(cabecalhosA, cabecalhosB, registrosA = [], registrosB = []) {
+        const amostraA = registrosA.slice(0, this.LIMITE_REGISTROS);
+        const amostraB = registrosB.slice(0, this.LIMITE_REGISTROS);
+        const colunasA = this.analisarColunas(cabecalhosA, amostraA);
+        const colunasB = this.analisarColunas(cabecalhosB, amostraB);
+        const pares = this.criarPares(colunasA, colunasB);
+        const parDocumento = this.selecionarParDocumento(pares);
+        const parValor = this.selecionarParPorTipo(pares, 'numero', new Set([
+            parDocumento?.colunaA.cabecalho || '',
+            parDocumento?.colunaB.cabecalho || '',
+        ]));
+        const parData = this.selecionarParPorTipo(pares, 'data', new Set([
+            parDocumento?.colunaA.cabecalho || '',
+            parDocumento?.colunaB.cabecalho || '',
+            parValor?.colunaA.cabecalho || '',
+            parValor?.colunaB.cabecalho || '',
+        ]));
+        const parDescricao = this.selecionarParDescricao(pares, new Set([
+            parDocumento?.colunaA.cabecalho || '',
+            parDocumento?.colunaB.cabecalho || '',
+            parValor?.colunaA.cabecalho || '',
+            parValor?.colunaB.cabecalho || '',
+            parData?.colunaA.cabecalho || '',
+            parData?.colunaB.cabecalho || '',
+        ]));
+        const usadosA = new Set();
+        const usadosB = new Set();
+        const reservar = (par) => {
+            if (!par)
+                return;
+            usadosA.add(par.colunaA.cabecalho);
+            usadosB.add(par.colunaB.cabecalho);
+        };
+        reservar(parDocumento);
+        reservar(parValor);
+        reservar(parData);
+        reservar(parDescricao);
+        const paresAdicionais = pares
+            .filter((par) => !usadosA.has(par.colunaA.cabecalho) &&
+            !usadosB.has(par.colunaB.cabecalho) &&
+            par.pontuacao >= 0.45)
+            .sort((a, b) => b.pontuacao - a.pontuacao);
+        const additionalKeys = [];
+        const adicionaisA = new Set();
+        const adicionaisB = new Set();
+        for (const par of paresAdicionais) {
+            const campoA = par.colunaA.cabecalho;
+            const campoB = par.colunaB.cabecalho;
+            if (adicionaisA.has(campoA) || adicionaisB.has(campoB))
+                continue;
+            additionalKeys.push({ fieldA: campoA, fieldB: campoB });
+            adicionaisA.add(campoA);
+            adicionaisB.add(campoB);
+        }
+        return {
+            documentA: parDocumento?.colunaA.cabecalho || '',
+            documentB: parDocumento?.colunaB.cabecalho || '',
+            amountA: parValor?.colunaA.cabecalho || '',
+            amountB: parValor?.colunaB.cabecalho || '',
+            dateA: parData?.colunaA.cabecalho || '',
+            dateB: parData?.colunaB.cabecalho || '',
+            descriptionA: parDescricao?.colunaA.cabecalho || undefined,
+            descriptionB: parDescricao?.colunaB.cabecalho || undefined,
+            additionalKeys,
+        };
+    }
+    static analisarColunas(cabecalhos, registros) {
+        return cabecalhos.map((cabecalho) => {
+            const valores = registros.map((registro) => this.normalizarValor(registro?.[cabecalho]));
+            const preenchidos = valores.filter((valor) => valor !== '');
+            const unicos = new Set(preenchidos);
+            let quantidadeNumerica = 0;
+            let quantidadeData = 0;
+            let quantidadeMonetaria = 0;
+            for (const valorOriginal of registros.map((registro) => registro?.[cabecalho])) {
+                if (this.ehData(valorOriginal))
+                    quantidadeData++;
+                if (this.ehNumero(valorOriginal))
+                    quantidadeNumerica++;
+                if (this.ehMonetario(valorOriginal))
+                    quantidadeMonetaria++;
+            }
+            const total = registros.length || 1;
+            const proporcaoNumerica = quantidadeNumerica / total;
+            const proporcaoData = quantidadeData / total;
+            const proporcaoMonetaria = quantidadeMonetaria / total;
+            let tipo = 'vazio';
+            if (preenchidos.length > 0) {
+                if (proporcaoData >= 0.6 && proporcaoData >= proporcaoNumerica) {
+                    tipo = 'data';
+                }
+                else if (proporcaoNumerica >= 0.6) {
+                    tipo = 'numero';
+                }
+                else {
+                    tipo = 'texto';
+                }
+            }
+            return {
+                cabecalho,
+                valores,
+                valoresPreenchidos: preenchidos,
+                valoresUnicos: unicos.size,
+                proporcaoPreenchida: preenchidos.length / total,
+                proporcaoUnica: preenchidos.length ? unicos.size / preenchidos.length : 0,
+                tipo,
+                proporcaoNumerica,
+                proporcaoData,
+                proporcaoMonetaria,
+            };
+        });
+    }
+    static criarPares(colunasA, colunasB) {
+        const pares = [];
+        for (const colunaA of colunasA) {
+            for (const colunaB of colunasB) {
+                pares.push({
+                    colunaA,
+                    colunaB,
+                    pontuacao: this.pontuarPar(colunaA, colunaB),
+                });
+            }
+        }
+        return pares.sort((a, b) => b.pontuacao - a.pontuacao);
+    }
+    static pontuarPar(colunaA, colunaB) {
+        if (colunaA.tipo === 'vazio' || colunaB.tipo === 'vazio')
+            return 0;
+        const valoresA = new Set(colunaA.valoresPreenchidos);
+        const valoresB = new Set(colunaB.valoresPreenchidos);
+        let intersecao = 0;
+        for (const valor of valoresA) {
+            if (valoresB.has(valor))
+                intersecao++;
+        }
+        const denominador = Math.max(1, Math.min(valoresA.size, valoresB.size));
+        const sobreposicao = intersecao / denominador;
+        const tiposCompativeis = colunaA.tipo === colunaB.tipo ? 1 : 0;
+        const semelhancaPreenchimento = 1 - Math.abs(colunaA.proporcaoPreenchida - colunaB.proporcaoPreenchida);
+        const semelhancaUnicidade = 1 - Math.abs(colunaA.proporcaoUnica - colunaB.proporcaoUnica);
+        const semelhancaNumerica = 1 - Math.abs(colunaA.proporcaoNumerica - colunaB.proporcaoNumerica);
+        const semelhancaData = 1 - Math.abs(colunaA.proporcaoData - colunaB.proporcaoData);
+        const semelhancaMonetaria = 1 - Math.abs(colunaA.proporcaoMonetaria - colunaB.proporcaoMonetaria);
+        let pontuacao = sobreposicao * 0.50 +
+            tiposCompativeis * 0.20 +
+            semelhancaPreenchimento * 0.10 +
+            semelhancaUnicidade * 0.08 +
+            semelhancaNumerica * 0.04 +
+            semelhancaData * 0.04 +
+            semelhancaMonetaria * 0.04;
+        // Colunas de datas não devem ser preferidas como identificadores
+        // quando há outras candidatas com correspondência equivalente.
+        if (colunaA.tipo === 'data' && colunaB.tipo === 'data') {
+            pontuacao *= 0.85;
+        }
+        return Math.min(1, pontuacao);
+    }
+    static selecionarParDocumento(pares) {
+        const candidatos = pares.filter(({ colunaA, colunaB }) => {
+            if (colunaA.tipo === 'vazio' || colunaB.tipo === 'vazio')
+                return false;
+            if (colunaA.tipo === 'numero' && colunaB.tipo === 'numero')
+                return false;
+            if (colunaA.tipo === 'data' || colunaB.tipo === 'data')
+                return false;
+            return colunaA.proporcaoUnica >= 0.5 && colunaB.proporcaoUnica >= 0.5;
+        });
+        return candidatos
+            .map((par) => ({
+            ...par,
+            pontuacao: par.pontuacao * 0.65 +
+                ((par.colunaA.proporcaoUnica + par.colunaB.proporcaoUnica) / 2) * 0.35,
+        }))
+            .sort((a, b) => b.pontuacao - a.pontuacao)[0];
+    }
+    static selecionarParPorTipo(pares, tipo, excluidos) {
+        return pares
+            .filter(({ colunaA, colunaB }) => colunaA.tipo === tipo &&
+            colunaB.tipo === tipo &&
+            !excluidos.has(colunaA.cabecalho) &&
+            !excluidos.has(colunaB.cabecalho))
+            .map((par) => ({
+            ...par,
+            pontuacao: this.pontuacaoPapel(par, tipo),
+        }))
+            .sort((a, b) => b.pontuacao - a.pontuacao)[0];
+    }
+    static pontuacaoPapel(par, tipo) {
+        let pontuacao = par.pontuacao;
+        if (tipo === 'numero') {
+            const proporcaoMonetaria = (par.colunaA.proporcaoMonetaria + par.colunaB.proporcaoMonetaria) / 2;
+            pontuacao += proporcaoMonetaria * 0.15;
+        }
+        return pontuacao;
+    }
+    static selecionarParDescricao(pares, excluidos) {
+        return pares
+            .filter(({ colunaA, colunaB }) => colunaA.tipo === 'texto' &&
+            colunaB.tipo === 'texto' &&
+            !excluidos.has(colunaA.cabecalho) &&
+            !excluidos.has(colunaB.cabecalho))
+            .sort((a, b) => b.pontuacao - a.pontuacao)[0];
+    }
+    static ehData(valor) {
+        if (valor instanceof Date && !Number.isNaN(valor.getTime()))
+            return true;
+        if (typeof valor !== 'string' && typeof valor !== 'number')
+            return false;
+        const texto = String(valor).trim();
+        if (!texto)
+            return false;
+        if (/^\d{4}-\d{1,2}-\d{1,2}(?:[T\s].*)?$/.test(texto))
+            return true;
+        if (/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/.test(texto))
+            return true;
+        if (/^\d{1,2}[.-]\d{1,2}[.-]\d{2,4}$/.test(texto))
+            return true;
+        return false;
+    }
+    static ehNumero(valor) {
+        if (typeof valor === 'number')
+            return Number.isFinite(valor);
+        if (typeof valor !== 'string')
+            return false;
+        const texto = valor.trim();
+        if (!texto || this.ehData(texto))
+            return false;
+        const limpo = texto
+            .replace(/[R$€£¥\s]/g, '')
+            .replace(/[()]/g, '')
+            .replace(/%$/, '');
+        if (!limpo)
+            return false;
+        return /^-?\d+(?:[.,]\d+)?$/.test(limpo) ||
+            /^-?\d{1,3}(?:[.,]\d{3})+(?:[.,]\d+)?$/.test(limpo);
+    }
+    static ehMonetario(valor) {
+        if (typeof valor === 'number')
+            return false;
+        if (typeof valor !== 'string')
+            return false;
+        const texto = valor.trim();
+        return /R\$|[$€£¥]/.test(texto) ||
+            /^\(?-?\d+[.,]\d{2}\)?$/.test(texto);
+    }
+    static normalizarValor(valor) {
+        if (valor === null || valor === undefined)
+            return '';
+        if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
+            return valor.toISOString().slice(0, 10);
+        }
+        let texto = String(valor).trim();
+        if (!texto)
+            return '';
+        texto = texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        texto = texto.replace(/\s+/g, ' ').toLowerCase();
+        if (this.ehData(texto)) {
+            const dataISO = this.converterDataISO(texto);
+            if (dataISO)
+                return dataISO;
+        }
+        return texto;
+    }
+    static converterDataISO(valor) {
+        const iso = valor.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (iso) {
+            return `${iso[1]}-${iso[2].padStart(2, '0')}-${iso[3].padStart(2, '0')}`;
+        }
+        const local = valor.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
+        if (local) {
+            const dia = local[1].padStart(2, '0');
+            const mes = local[2].padStart(2, '0');
+            let ano = local[3];
+            if (ano.length === 2)
+                ano = Number(ano) >= 50 ? `19${ano}` : `20${ano}`;
+            return `${ano}-${mes}-${dia}`;
+        }
+        return undefined;
+    }
 }
 exports.ServicoSugestaoMapeamento = ServicoSugestaoMapeamento;
-// Aliases para compatibilidade
 exports.servicoSugestaoMapeamento = ServicoSugestaoMapeamento;
 exports.MappingSuggestionService = ServicoSugestaoMapeamento;

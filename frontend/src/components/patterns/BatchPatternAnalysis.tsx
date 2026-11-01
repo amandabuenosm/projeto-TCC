@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { ResultadoPadraoLote, ItemAnomalia } from '../../types/index.js';
+import { ResultadoPadraoLote } from '../../types/index.js';
 import {
   BrainCircuit,
   Eye,
   HelpCircle,
-  AlertTriangle,
   ShieldCheck,
   Sparkles,
   Loader2,
@@ -13,8 +12,6 @@ import {
 export interface PropsAnalisePadroesLote {
   batchAnalysis?: ResultadoPadraoLote;
   analiseLote?: ResultadoPadraoLote;
-  anomalies?: ItemAnomalia[];
-  anomalias?: ItemAnomalia[];
   onTriggerBatchAI?: () => Promise<void>;
   aoAcionarIALote?: () => Promise<void>;
 }
@@ -22,13 +19,10 @@ export interface PropsAnalisePadroesLote {
 export const BatchPatternAnalysis: React.FC<PropsAnalisePadroesLote> = ({
   batchAnalysis,
   analiseLote,
-  anomalies,
-  anomalias,
   onTriggerBatchAI,
   aoAcionarIALote,
 }) => {
   const dadosLote = analiseLote || batchAnalysis;
-  const listaAnomalias = anomalias || anomalies || [];
   const executarIALote = aoAcionarIALote || onTriggerBatchAI || (async () => {});
 
   const [carregando, setCarregando] = useState(false);
@@ -49,10 +43,10 @@ export const BatchPatternAnalysis: React.FC<PropsAnalisePadroesLote> = ({
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <BrainCircuit className="w-6 h-6 text-purple-400" />
-            Análise Agregada de Padrões e Detecção de Anomalias
+            Análise Agregada de Padrões e IA
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Visualização da amostra com separação entre constatações estatísticas e hipóteses da IA.
+            Fatos observados pelo motor determinístico, hipóteses da IA e plano de ação recomendado.
           </p>
         </div>
 
@@ -75,51 +69,13 @@ export const BatchPatternAnalysis: React.FC<PropsAnalisePadroesLote> = ({
         </button>
       </div>
 
-      {/* Anomalias */}
-      {listaAnomalias.length > 0 && (
-        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <h3 className="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
-            Anomalias Estatísticas ({listaAnomalias.length})
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {listaAnomalias.map((anom) => (
-              <div
-                key={anom.id}
-                className="bg-slate-950/70 border border-amber-900/40 rounded-xl p-4 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-300">
-                    {anom.type}
-                  </span>
-                  <span className="text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded">
-                    {anom.affectedRecordsCount} registro(s)
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-300">
-                  {anom.description}
-                </p>
-
-                <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
-                  {anom.evidenceDetails.map((evidencia, i) => (
-                    <div key={i}>• {evidencia}</div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* Fatos e hipóteses */}
       {dadosLote && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <section className="bg-slate-900 border border-cyan-900/40 rounded-2xl p-6 shadow-xl space-y-4">
             <h3 className="text-sm font-bold text-cyan-400 uppercase flex items-center gap-2">
               <Eye className="w-5 h-5" />
-              FATO OBSERVADO — Motor Determinístico
+              FATO OBSERVADO - MOTOR DETERMINÍSTICO:
             </h3>
 
             {dadosLote.observedFacts.map((fato, i) => (
@@ -138,7 +94,7 @@ export const BatchPatternAnalysis: React.FC<PropsAnalisePadroesLote> = ({
           <section className="bg-slate-900 border border-purple-900/40 rounded-2xl p-6 shadow-xl space-y-4">
             <h3 className="text-sm font-bold text-purple-400 uppercase flex items-center gap-2">
               <HelpCircle className="w-5 h-5" />
-              HIPÓTESE GERADA PELA IA
+              HIPÓTESE GERADA PELA IA:
             </h3>
 
             {dadosLote.aiHypotheses.map((hipotese, i) => (
@@ -161,7 +117,7 @@ export const BatchPatternAnalysis: React.FC<PropsAnalisePadroesLote> = ({
         <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
           <h3 className="text-sm font-bold text-emerald-400 uppercase flex items-center gap-2">
             <ShieldCheck className="w-4 h-4" />
-            Plano Recomendado de Ação Preventiva e Corretiva
+            PLANO RECOMENDADO DE AÇÃO PREVENTIVA E CORRETIVA:
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

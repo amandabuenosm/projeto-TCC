@@ -5,6 +5,7 @@ import {
   ConfigCorrespondencia,
   MapeamentoCampos,
 } from '../../models/tipos.js';
+import { ServicoNormalizacao } from '../normalization/normalizationService.js';
 
 export class ServicoCorrespondencia {
   // Executa a comparação determinística entre as fontes e classifica os registros
@@ -178,14 +179,14 @@ export class ServicoCorrespondencia {
     }
 
     for (const par of mapeamento.additionalKeys || []) {
-      const valA = String(regA.originalData[par.fieldA] ?? '').trim();
-      const valB = String(regB.originalData[par.fieldB] ?? '').trim();
+      const valorA = regA.originalData[par.fieldA];
+      const valorB = regB.originalData[par.fieldB];
 
-      if (valA.toUpperCase() !== valB.toUpperCase()) {
+      if (!this.valoresAdicionaisIguais(par.fieldA, valorA, valorB, config.amountTolerance)) {
         camposDivergentes.push({
           fieldName: par.fieldA,
-          valueA: regA.originalData[par.fieldA],
-          valueB: regB.originalData[par.fieldB],
+          valueA: valorA,
+          valueB: valorB,
         });
       }
     }
@@ -211,6 +212,31 @@ export class ServicoCorrespondencia {
       divergentFields: camposDivergentes,
       aiAnalyzed: false,
     };
+  }
+
+  private static valoresAdicionaisIguais(
+    campo: string,
+    valorA: unknown,
+    valorB: unknown,
+    tolerancia: number
+  ): boolean {
+    const normalizarCabecalho = (texto: string) =>
+      texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const cabecalho = normalizarCabecalho(campo);
+    const campoMonetario =
+      /\b(valor|base de calculo|total|saldo|preco|price|amount|liquido|bruto|credito|debito|retencao|imposto|tributo)\b/.test(cabecalho);
+
+    if (campoMonetario) {
+      const numeroA = ServicoNormalizacao.normalizarValor(valorA);
+      const numeroB = ServicoNormalizacao.normalizarValor(valorB);
+
+      if (numeroA !== null && numeroB !== null) {
+        return Math.abs(numeroA - numeroB) <= tolerancia;
+      }
+    }
+
+    return ServicoNormalizacao.normalizarTexto(valorA) ===
+      ServicoNormalizacao.normalizarTexto(valorB);
   }
 
   private static criarItemAusente(

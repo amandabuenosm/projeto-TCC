@@ -129,7 +129,14 @@ export class ServicoNormalizacao {
    * Limpeza de strings gerais em maiúsculas
    */
   public static normalizarTexto(val: any): string {
-    return val ? String(val).trim().replace(/\s+/g, ' ').toUpperCase() : '';
+    return val
+      ? String(val)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim()
+          .replace(/\s+/g, ' ')
+          .toUpperCase()
+      : '';
   }
 
   // Aliases para compatibilidade

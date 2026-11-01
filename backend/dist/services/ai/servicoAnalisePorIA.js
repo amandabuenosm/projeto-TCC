@@ -211,7 +211,9 @@ class ServicoAnalisePorIA {
         const controller = new AbortController();
         const tempoLimiteId = setTimeout(() => controller.abort(), tempoLimiteMs);
         try {
-            const resposta = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+            const resposta = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, 
+            // `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`,
+            {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

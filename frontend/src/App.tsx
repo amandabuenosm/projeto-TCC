@@ -6,7 +6,6 @@ import {
   ConfigCorrespondencia,
   ResumoConciliacao,
   ItemDivergencia,
-  ItemAnomalia,
   ResultadoPadraoLote,
 } from './types/index.js';
 import { api, extrairMensagemErro } from './services/api.js';
@@ -42,7 +41,6 @@ export const App: React.FC = () => {
   const [idSessao, setIdSessao] = useState<string | null>(null);
   const [resumo, setResumo] = useState<ResumoConciliacao | null>(null);
   const [divergencias, setDivergencias] = useState<ItemDivergencia[]>([]);
-  const [anomalias, setAnomalias] = useState<ItemAnomalia[]>([]);
   const [analiseLote, setAnaliseLote] = useState<ResultadoPadraoLote>();
 
   const [itemSelecionado, setItemSelecionado] = useState<ItemDivergencia | null>(null);
@@ -123,9 +121,8 @@ export const App: React.FC = () => {
         api.obterResumo(res.sessionId),
         api.obterDivergencias(res.sessionId),
       ]);
-
       setResumo(resResumo.summary);
-      setAnomalias(resResumo.anomalies || []);
+      setResumo(resResumo.summary);
       setDivergencias(resDiv.divergences);
       setEtapa('results');
     } catch (err: any) {
@@ -190,7 +187,6 @@ export const App: React.FC = () => {
     setIdSessao(null);
     setResumo(null);
     setDivergencias([]);
-    setAnomalias([]);
     setAnaliseLote(undefined);
     setItemSelecionado(null);
     setFiltroStatus('');
@@ -378,7 +374,6 @@ export const App: React.FC = () => {
             {abaAtiva === 'patterns' && (
               <BatchPatternAnalysis
                 batchAnalysis={analiseLote}
-                anomalies={anomalias}
                 onTriggerBatchAI={aoAnalisarLoteIA}
               />
             )}
