@@ -41,6 +41,8 @@ const sync_1 = require("csv-parse/sync");
 const xlsx = __importStar(require("xlsx"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const mammoth_1 = __importDefault(require("mammoth"));
+const node_buffer_1 = require("node:buffer");
+const node_util_1 = require("node:util");
 class ParserArquivos {
     // Converte o buffer de um arquivo em uma lista de registros brutos
     static async parsear(buffer, nomeArquivo) {
@@ -73,7 +75,9 @@ class ParserArquivos {
     }
     // Parse de arquivos CSV com detecção de cabeçalho flexível
     static parseCsv(buffer) {
-        const conteudo = buffer.toString('utf-8').replace(/^\uFEFF/, '');
+        const conteudo = ((0, node_buffer_1.isUtf8)(buffer)
+            ? buffer.toString('utf-8')
+            : new node_util_1.TextDecoder('windows-1252').decode(buffer)).replace(/^\uFEFF/, '');
         const linhasBrutas = conteudo.split(/\r?\n/);
         const delimitadores = ['|', '\t', ';', ','];
         const linhasAnalise = linhasBrutas.slice(0, Math.min(10, linhasBrutas.length));
@@ -143,6 +147,7 @@ class ParserArquivos {
         const registros = xlsx.utils.sheet_to_json(planilha, {
             range: linhaCabecalhoIndex, // Define dinamicamente onde o cabeçalho começa
             defval: '',
+            raw: false,
         });
         // Limpa chaves vazias ou __EMPTY caso existam colunas sobrando
         const cabecalhosReais = registros.length
@@ -171,6 +176,10 @@ class ParserArquivos {
         const resultadoFiscal = this.parsePdfRelatorioFiscal(linhas);
         if (resultadoFiscal) {
             return resultadoFiscal;
+        }
+        const resultadoPerformance = this.parsePdfRelatorioPerformance(linhas);
+        if (resultadoPerformance) {
+            return resultadoPerformance;
         }
         const dividirLinha = (linha) => linha.split(/\t|\s{2,}/).map((c) => c.trim()).filter(Boolean);
         const cabecalhos = dividirLinha(linhas[0]);
@@ -339,6 +348,48 @@ class ParserArquivos {
         }
         return registros.length ? { registros, cabecalhos } : null;
     }
+    static parsePdfRelatorioPerformance(linhas) {
+        const normalizar = (texto) => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const indiceCabecalho = linhas.findIndex((linha) => {
+            const cabecalho = normalizar(linha);
+            return cabecalho.includes('nome do projeto') &&
+                cabecalho.includes('data de inicio') &&
+                cabecalho.includes('crescimento percentual');
+        });
+        if (indiceCabecalho === -1) {
+            return null;
+        }
+        const cabecalhos = [
+            'Nome do Projeto',
+            'Data de Início',
+            'Data de Fim',
+            'Investimento Total (R$)',
+            'Custos Adicionais (R$)',
+            'Retorno Financeiro Bruto (R$)',
+            'Lucro Líquido Gerado (R$)',
+            'ROI (%)',
+            'Receita Antes do Investimento (R$)',
+            'Receita Após o Investimento (R$)',
+            'Crescimento Percentual (%)',
+        ];
+        const valorMonetario = 'R\\$\\s*([\\d.]+,\\d{2})';
+        const percentual = '(-?[\\d.]+,\\d{2}%|N/A)';
+        const padraoRegistro = new RegExp(`^(.+?)(\\d{2}\\/\\d{2}\\/\\d{4})(\\d{2}\\/\\d{2}\\/\\d{4})` +
+            `${valorMonetario}${valorMonetario}${valorMonetario}${valorMonetario}` +
+            `${percentual}${valorMonetario}${valorMonetario}${percentual}$`, 'i');
+        const registros = [];
+        for (const linha of linhas.slice(indiceCabecalho + 1)) {
+            const partes = linha.match(padraoRegistro);
+            if (!partes)
+                continue;
+            const valores = partes.slice(1);
+            registros.push(Object.fromEntries(cabecalhos.map((cabecalho, indice) => [cabecalho, valores[indice]])));
+        }
+        if (!registros.length) {
+            throw new Error('O cabeçalho do relatório de performance foi identificado, mas nenhuma linha de dados pôde ser extraída.');
+        }
+        return { registros, cabecalhos };
+    }
     // Parse de arquivos DOCX: extrai tabela do documento Word
     static async parseDocx(buffer) {
         const { value: html } = await mammoth_1.default.convertToHtml({ buffer });
@@ -352,11 +403,21 @@ class ParserArquivos {
         }
         const limparHtml = (textoHtml) => textoHtml.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
         const obterCelulas = (linhaHtml) => [...linhaHtml.matchAll(/<t[dh][\s\S]*?<\/t[dh]>/gi)].map((m) => limparHtml(m[0]));
-        const cabecalhos = obterCelulas(linhas[0][0]);
-        if (cabecalhos.length < 2) {
+        const celulasPorLinha = linhas.map((linha) => obterCelulas(linha[0]));
+        let indiceCabecalho = 0;
+        let maxCelulasPreenchidas = 0;
+        celulasPorLinha.forEach((celulas, indice) => {
+            const celulasPreenchidas = celulas.filter((celula) => celula.trim() !== '').length;
+            if (celulasPreenchidas > maxCelulasPreenchidas) {
+                maxCelulasPreenchidas = celulasPreenchidas;
+                indiceCabecalho = indice;
+            }
+        });
+        const cabecalhos = celulasPorLinha[indiceCabecalho];
+        if (maxCelulasPreenchidas < 2) {
             throw new Error('Não foi possível identificar colunas na tabela do documento Word.');
         }
-        const registros = linhas.slice(1).map((linhaMatch) => Object.fromEntries(cabecalhos.map((cabecalho, indice) => [cabecalho, obterCelulas(linhaMatch[0])[indice] || ''])));
+        const registros = celulasPorLinha.slice(indiceCabecalho + 1).map((celulas) => Object.fromEntries(cabecalhos.map((cabecalho, indice) => [cabecalho, celulas[indice] || ''])));
         if (!registros.length) {
             throw new Error('Nenhuma linha de dados foi reconhecida na tabela do documento Word.');
         }

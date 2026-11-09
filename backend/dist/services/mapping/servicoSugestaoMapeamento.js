@@ -175,13 +175,15 @@ class ServicoSugestaoMapeamento {
         const semelhancaNumerica = 1 - Math.abs(colunaA.proporcaoNumerica - colunaB.proporcaoNumerica);
         const semelhancaData = 1 - Math.abs(colunaA.proporcaoData - colunaB.proporcaoData);
         const semelhancaMonetaria = 1 - Math.abs(colunaA.proporcaoMonetaria - colunaB.proporcaoMonetaria);
-        let pontuacao = sobreposicao * 0.50 +
-            tiposCompativeis * 0.20 +
-            semelhancaPreenchimento * 0.10 +
-            semelhancaUnicidade * 0.08 +
-            semelhancaNumerica * 0.04 +
-            semelhancaData * 0.04 +
-            semelhancaMonetaria * 0.04;
+        const semelhancaCabecalho = this.calcularSemelhancaCabecalho(colunaA.cabecalho, colunaB.cabecalho);
+        let pontuacao = semelhancaCabecalho * 0.40 +
+            sobreposicao * 0.30 +
+            tiposCompativeis * 0.12 +
+            semelhancaPreenchimento * 0.06 +
+            semelhancaUnicidade * 0.05 +
+            semelhancaNumerica * 0.02 +
+            semelhancaData * 0.02 +
+            semelhancaMonetaria * 0.03;
         // Colunas de datas não devem ser preferidas como identificadores
         // quando há outras candidatas com correspondência equivalente.
         if (colunaA.tipo === 'data' && colunaB.tipo === 'data') {
@@ -190,10 +192,27 @@ class ServicoSugestaoMapeamento {
         return Math.min(1, pontuacao);
     }
     static selecionarParDocumento(pares) {
+        const candidatosIdentificados = pares.filter(({ colunaA, colunaB }) => this.pontuarCampoDocumento(colunaA.cabecalho) >= 0.6 &&
+            this.pontuarCampoDocumento(colunaB.cabecalho) >= 0.6 &&
+            colunaA.proporcaoUnica >= 0.5 &&
+            colunaB.proporcaoUnica >= 0.5);
+        if (candidatosIdentificados.length) {
+            return candidatosIdentificados
+                .map((par) => ({
+                ...par,
+                pontuacao: par.pontuacao +
+                    (this.pontuarCampoDocumento(par.colunaA.cabecalho) +
+                        this.pontuarCampoDocumento(par.colunaB.cabecalho)) * 0.5,
+            }))
+                .sort((a, b) => b.pontuacao - a.pontuacao)[0];
+        }
         const candidatos = pares.filter(({ colunaA, colunaB }) => {
             if (colunaA.tipo === 'vazio' || colunaB.tipo === 'vazio')
                 return false;
-            if (colunaA.tipo === 'numero' && colunaB.tipo === 'numero')
+            if (colunaA.tipo === 'numero' &&
+                colunaB.tipo === 'numero' &&
+                !this.pontuarCampoDocumento(colunaA.cabecalho) &&
+                !this.pontuarCampoDocumento(colunaB.cabecalho))
                 return false;
             if (colunaA.tipo === 'data' || colunaB.tipo === 'data')
                 return false;
@@ -223,7 +242,9 @@ class ServicoSugestaoMapeamento {
         let pontuacao = par.pontuacao;
         if (tipo === 'numero') {
             const proporcaoMonetaria = (par.colunaA.proporcaoMonetaria + par.colunaB.proporcaoMonetaria) / 2;
-            pontuacao += proporcaoMonetaria * 0.15;
+            const proporcaoCampoMonetario = (this.pontuarCampoMonetario(par.colunaA.cabecalho) +
+                this.pontuarCampoMonetario(par.colunaB.cabecalho)) / 2;
+            pontuacao += proporcaoMonetaria * 0.15 + proporcaoCampoMonetario * 0.5;
         }
         return pontuacao;
     }
@@ -233,7 +254,50 @@ class ServicoSugestaoMapeamento {
             colunaB.tipo === 'texto' &&
             !excluidos.has(colunaA.cabecalho) &&
             !excluidos.has(colunaB.cabecalho))
+            .map((par) => ({
+            ...par,
+            pontuacao: par.pontuacao +
+                (this.pontuarCampoDescricao(par.colunaA.cabecalho) +
+                    this.pontuarCampoDescricao(par.colunaB.cabecalho)) * 0.2,
+        }))
             .sort((a, b) => b.pontuacao - a.pontuacao)[0];
+    }
+    static calcularSemelhancaCabecalho(cabecalhoA, cabecalhoB) {
+        const ignorar = new Set([
+            'a', 'as', 'ao', 'aos', 'da', 'das', 'de', 'do', 'dos', 'e',
+            'fornecedor', 'fornecedora', 'cliente',
+        ]);
+        const tokensA = new Set(this.normalizarValor(cabecalhoA).split(/[^a-z0-9]+/).filter((token) => token && !ignorar.has(token)));
+        const tokensB = new Set(this.normalizarValor(cabecalhoB).split(/[^a-z0-9]+/).filter((token) => token && !ignorar.has(token)));
+        if (!tokensA.size || !tokensB.size)
+            return 0;
+        const compartilhados = [...tokensA].filter((token) => tokensB.has(token)).length;
+        return (2 * compartilhados) / (tokensA.size + tokensB.size);
+    }
+    static pontuarCampoDocumento(cabecalho) {
+        const nome = this.normalizarValor(cabecalho);
+        if (/\b(numero|nro|nr|num)\b.*\b(nfe|nfce|nf|nota|documento|doc)\b/.test(nome))
+            return 1;
+        if (/\b(documento|document|nfe|nfce|nota fiscal|invoice|fatura)\b/.test(nome))
+            return 0.9;
+        if (/\b(cnpj|cpf)\b/.test(nome))
+            return 0.8;
+        if (/^(id|identificador|codigo|cod)$/.test(nome))
+            return 0.6;
+        return 0;
+    }
+    static pontuarCampoMonetario(cabecalho) {
+        const nome = this.normalizarValor(cabecalho);
+        if (/\btotal\b/.test(nome))
+            return 1;
+        if (/\b(valor|saldo|preco|price|amount|liquido|bruto)\b/.test(nome))
+            return 0.8;
+        if (/\bbase\b/.test(nome))
+            return 0.75;
+        return 0;
+    }
+    static pontuarCampoDescricao(cabecalho) {
+        return /\b(descricao|razao social|nome|fornecedor|cliente|historico|observacao)\b/.test(this.normalizarValor(cabecalho)) ? 1 : 0;
     }
     static ehData(valor) {
         if (valor instanceof Date && !Number.isNaN(valor.getTime()))
@@ -275,7 +339,7 @@ class ServicoSugestaoMapeamento {
             return false;
         const texto = valor.trim();
         return /R\$|[$€£¥]/.test(texto) ||
-            /^\(?-?\d+[.,]\d{2}\)?$/.test(texto);
+            /^\(?-?(?:\d+|\d{1,3}(?:[.,]\d{3})+)[.,]\d{2}\)?$/.test(texto);
     }
     static normalizarValor(valor) {
         if (valor === null || valor === undefined)

@@ -76,7 +76,7 @@ export class ServicoNormalizacao {
       texto = texto.slice(1);
     }
 
-    texto = texto.replace(/[R$€\s]/g, '');
+    texto = texto.replace(/[R$€%\s]/g, '');
 
     if (texto.includes('.') && texto.includes(',')) {
       texto =
@@ -111,18 +111,54 @@ export class ServicoNormalizacao {
     const texto = String(val).trim();
     if (!texto) return null;
 
-    const formatoBr = texto.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
-    if (formatoBr) {
-      return `${formatoBr[3]}-${formatoBr[2].padStart(2, '0')}-${formatoBr[1].padStart(2, '0')}`;
-    }
-
     const formatoIso = texto.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
     if (formatoIso) {
-      return `${formatoIso[1]}-${formatoIso[2].padStart(2, '0')}-${formatoIso[3].padStart(2, '0')}`;
+      return this.formatarData(
+        Number(formatoIso[1]),
+        Number(formatoIso[2]),
+        Number(formatoIso[3])
+      );
+    }
+
+    const formatoNumerico = texto.match(
+      /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2}|\d{4})(?:[T\s].*)?$/
+    );
+    if (formatoNumerico) {
+      const primeiro = Number(formatoNumerico[1]);
+      const segundo = Number(formatoNumerico[2]);
+      const anoTexto = formatoNumerico[3];
+      const anoNumerico = Number(anoTexto);
+      const ano =
+        anoTexto.length === 2
+          ? anoNumerico <= 49
+            ? 2000 + anoNumerico
+            : 1900 + anoNumerico
+          : anoNumerico;
+
+      if (anoTexto.length === 2) {
+        return primeiro > 12
+          ? this.formatarData(ano, segundo, primeiro)
+          : this.formatarData(ano, primeiro, segundo);
+      }
+
+      return segundo > 12
+        ? this.formatarData(ano, primeiro, segundo)
+        : this.formatarData(ano, segundo, primeiro);
     }
 
     const dataParseada = new Date(texto);
     return isNaN(dataParseada.getTime()) ? null : dataParseada.toISOString().split('T')[0];
+  }
+
+  private static formatarData(ano: number, mes: number, dia: number): string | null {
+    const bissexto = ano % 4 === 0 && (ano % 100 !== 0 || ano % 400 === 0);
+    const diasNoMes = [31, bissexto ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    if (mes < 1 || mes > 12 || dia < 1 || dia > diasNoMes[mes - 1]) {
+      return null;
+    }
+
+    return `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
   }
 
   /**

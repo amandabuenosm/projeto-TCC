@@ -180,6 +180,11 @@ export class ParserArquivos {
       return resultadoFiscal;
     }
 
+    const resultadoPerformance = this.parsePdfRelatorioPerformance(linhas);
+    if (resultadoPerformance) {
+      return resultadoPerformance;
+    }
+
     const dividirLinha = (linha: string) => linha.split(/\t|\s{2,}/).map((c: string) => c.trim()).filter(Boolean);
     const cabecalhos = dividirLinha(linhas[0]);
 
@@ -395,6 +400,62 @@ export class ParserArquivos {
     }
 
     return registros.length ? { registros, cabecalhos } : null;
+  }
+
+  private static parsePdfRelatorioPerformance(
+    linhas: string[]
+  ): { registros: RegistroBruto[]; cabecalhos: string[] } | null {
+    const normalizar = (texto: string) =>
+      texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const indiceCabecalho = linhas.findIndex((linha) => {
+      const cabecalho = normalizar(linha);
+      return cabecalho.includes('nome do projeto') &&
+        cabecalho.includes('data de inicio') &&
+        cabecalho.includes('crescimento percentual');
+    });
+
+    if (indiceCabecalho === -1) {
+      return null;
+    }
+
+    const cabecalhos = [
+      'Nome do Projeto',
+      'Data de Início',
+      'Data de Fim',
+      'Investimento Total (R$)',
+      'Custos Adicionais (R$)',
+      'Retorno Financeiro Bruto (R$)',
+      'Lucro Líquido Gerado (R$)',
+      'ROI (%)',
+      'Receita Antes do Investimento (R$)',
+      'Receita Após o Investimento (R$)',
+      'Crescimento Percentual (%)',
+    ];
+    const valorMonetario = 'R\\$\\s*([\\d.]+,\\d{2})';
+    const percentual = '(-?[\\d.]+,\\d{2}%|N/A)';
+    const padraoRegistro = new RegExp(
+      `^(.+?)(\\d{2}\\/\\d{2}\\/\\d{4})(\\d{2}\\/\\d{2}\\/\\d{4})` +
+        `${valorMonetario}${valorMonetario}${valorMonetario}${valorMonetario}` +
+        `${percentual}${valorMonetario}${valorMonetario}${percentual}$`,
+      'i'
+    );
+    const registros: RegistroBruto[] = [];
+
+    for (const linha of linhas.slice(indiceCabecalho + 1)) {
+      const partes = linha.match(padraoRegistro);
+      if (!partes) continue;
+
+      const valores = partes.slice(1);
+      registros.push(Object.fromEntries(
+        cabecalhos.map((cabecalho, indice) => [cabecalho, valores[indice]])
+      ));
+    }
+
+    if (!registros.length) {
+      throw new Error('O cabeçalho do relatório de performance foi identificado, mas nenhuma linha de dados pôde ser extraída.');
+    }
+
+    return { registros, cabecalhos };
   }
 
   // Parse de arquivos DOCX: extrai tabela do documento Word

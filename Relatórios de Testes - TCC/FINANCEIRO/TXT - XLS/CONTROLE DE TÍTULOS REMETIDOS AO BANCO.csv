@@ -1,0 +1,43 @@
+Controle de Títulos Remetidos ao Banco - Payzen Fintech Serviços Financeiros LTDA;;;;;;;;;;
+;;;;;;;;;;
+Documento;Nosso Número;Cliente;CPF/CNPJ;Data de Emissão;Data de Vencimento;Valor do Título;Banco;Agência / Conta;Data de Envio;Ocorrência / Retorno Bancário
+FAT-2026-001;900001;Comercial Oliveira Ltda;47.281.936/0001-42;01/10/2026;15/11/2026;R$ 4.850,00;Banco do Brasil;1245 / 45872-1;02/10/2026;02 - Entrada confirmada
+FAT-2026-002;900002;Mariana Costa Comércio;318.642.957-40;01/10/2026;20/11/2026;R$ 2.350,00;Itaú;3321 / 78541-0;02/10/2026;02 - Entrada confirmada
+FAT-2026-003;958470;Distribuidora São Lucas Ltda;58.193.746/0001-09;02/10/2026;25/11/2026;R$ 12.750,00;Itaú;0876 / 12589-4;03/10/2026;Aguardando processamento bancário
+FAT-2026-004;900004;Roberto Mendes ME;529.731.864-05;02/10/2026;10/11/2026;R$ 1.780,00;Santander;4412 / 63985-2;03/10/2026;03 - CPF/CNPJ do pagador inválido
+FAT-2026-005;900005;Transportes Vale Sul Ltda;63.824.195/0001-70;03/10/2026;30/11/2026;R$ 8.900,00;Sicredi;0912 / 34871-6;04/10/2026;02 - Entrada confirmada
+FAT-2026-006;900006;Fernanda Alves Presentes;247.851.963-18;03/10/2026;18/11/2026;R$ 3.150,00;Caixa Econômica Federal;2201 / 78452-3;04/10/2026;Remessa transmitida, sem retorno
+FAT-2026-007;900007;Indústria Metalúrgica Horizonte Ltda;29.648.173/0001-85;04/10/2026;05/12/2026;R$ 25.000,00;Banco do Brasil;1245 / 45872-1;05/10/2026;02 - Entrada confirmada
+FAT-2026-008;900008;Carlos Eduardo Materiais;684.219.735-09;04/10/2026;12/11/2026;R$ 1.420,00;Itaú;3321 / 78541-0;05/10/2026;04 - Agência ou conta do beneficiário inválida
+FAT-2026-009;900009;Mercado Bom Preço Ltda;71.395.826/0001-54;05/10/2026;22/11/2026;R$ 6.750,00;Bradesco;0876 / 12589-4;06/10/2026;02 - Entrada confirmada
+FAT-2026-010;900010;Patrícia Nunes Papelaria;193.762.845-30;05/10/2026;28/11/2026;R$ 2.890,00;Santander;4412 / 63985-2;06/10/2026;Aguardando processamento bancário
+FAT-2026-011;900011;Auto Peças Central Ltda;36.917.284/0001-63;06/10/2026;15/12/2026;R$ 11.400,00;Sicredi;0912 / 34871-6;07/10/2026;02 - Entrada confirmada
+FAT-2026-012;900012;André Luiz Ferreira;752.193.864-27;06/10/2026;19/11/2026;R$ 1.980,00;Caixa Econômica Federal;2201 / 78452-3;07/10/2026;05 - Data de vencimento inválida
+FAT-2026-013;900013;Atacadista União Ltda;82.461.937/0001-28;07/10/2026;10/12/2026;R$ 15.300,00;Banco do Brasil;2547 / 85916-2;08/10/2026;02 - Entrada confirmada
+FAT-2026-014;900014;Juliana Martins Boutique;416.827.953-61;07/10/2026;25/11/2026;R$ 2.450,00;Itaú;3321 / 78541-0;08/10/2026;Remessa transmitida, sem retorno
+FAT-2026-015;900015;Construtora Pedra Branca Ltda;54.728.163/0001-91;08/10/2026;18/12/2026;R$ 22.400,00;Bradesco;0876 / 12589-4;09/10/2026;02 - Entrada confirmada
+FAT-2026-016;900016;Marcelo Ribeiro Informática;825.316.947-02;08/10/2026;30/11/2026;R$ 3.650,00;Santander;4412 / 63985-2;09/10/2026;06 - Valor do título inválido
+FAT-2026-017;900017;Comercial Estrela do Sul Ltda;18.936.472/0001-36;09/10/2026;20/12/2026;R$ 9.800,00;Sicredi;0912 / 34871-6;10/10/2026;02 - Entrada confirmada
+FAT-2026-018;900018;Rafaela Souza Cosméticos;391.648.275-84;09/10/2026;05/12/2026;R$ 1.720,00;Caixa Econômica Federal;2201 / 78452-3;10/10/2026;Aguardando processamento bancário
+FAT-2026-019;900019;Distribuidora Norte Catarinense Ltda;92.574.183/0001-47;10/10/2026;22/12/2026;R$ 19.800,00;Banco do Brasil;1245 / 45872-1;11/10/2026;02 - Entrada confirmada
+FAT-2026-020;900020;Thiago Almeida Serviços;638.251.974-16;10/10/2026;15/12/2026;R$ 4.800,00;Itaú;3321 / 78541-0;11/10/2026;07 - Nosso número duplicado
+FAT-2026-021;900021;Supermercado Avenida Ltda;45.819.263/0001-08;11/10/2026;28/12/2026;R$ 20.000,00;Bradesco;0876 / 12589-4;12/10/2026;10 - Beneficiário não habilitado para a carteira
+FAT-2026-022;900022;Camila Rodrigues Moda;275.914.638-52;11/10/2026;18/12/2026;R$ 2.190,00;Santander;4412 / 63985-2;12/10/2026;Remessa transmitida, sem retorno
+FAT-2026-023;900023;Madeireira Pinhal Ltda;67.238.491/0001-72;12/10/2026;05/01/2027;R$ 16.800,00;Sicredi;0912 / 34871-6;13/10/2026;02 - Entrada confirmada
+FAT-2026-024;900024;Felipe Cardoso Comércio;917.263.845-70;12/10/2026;20/12/2026;R$ 3.280,00;Caixa Econômica Federal;2201 / 78452-3;13/10/2026;08 - Carteira de cobrança inválida
+FAT-2026-025;900025;Comercial Rio das Flores Ltda;31.847.295/0001-60;13/10/2026;10/01/2027;R$ 12.500,00;Banco do Brasil;1245 / 45872-1;14/10/2026;02 - Entrada confirmada
+FAT-2026-026;900026;Bruna Freitas Presentes;583.194.627-08;13/10/2026;22/12/2026;R$ 1.890,00;Itaú;3321 / 78541-0;14/10/2026;Aguardando processamento bancário
+FAT-2026-027;900027;Tecnologia e Suprimentos Ltda;76.391.825/0001-49;14/10/2026;15/01/2027;R$ 24.300,00;Bradesco;0876 / 12589-4;15/10/2026;02 - Entrada confirmada
+FAT-2026-028;900028;Eduardo Martins Auto Center;164.928.375-93;14/10/2026;28/12/2026;R$ 4.150,00;Santander;4412 / 63985-2;15/10/2026;09 - Data de emissão posterior ao vencimento
+FAT-2026-029;900029;Distribuidora Bela Vista Ltda;83.175.924/0001-16;15/10/2026;20/01/2027;R$ 17.600,00;Sicredi;0912 / 34871-6;16/10/2026;02 - Entrada confirmada
+FAT-2026-030;900030;Letícia Barros Acessórios;729.415.863-21;15/10/2026;05/01/2027;R$ 2.670,00;Caixa Econômica Federal;2201 / 78452-3;16/10/2026;Remessa transmitida, sem retorno
+FAT-2026-031;900031;Indústria Plásticos Brasil Ltda;26.493.817/0001-53;16/10/2026;25/01/2027;R$ 28.900,00;Banco do Brasil;1245 / 45872-1;17/10/2026;02 - Entrada confirmada
+FAT-2026-032;900032;Gustavo Pereira Materiais;852.741.963-35;16/10/2026;10/01/2027;R$ 3.450,00;Itaú;3321 / 78541-0;17/10/2026;10 - Beneficiário não habilitado para a carteira
+FAT-2026-033;900033;Comercial Ponto Certo Ltda;39.582.716/0001-84;17/10/2026;28/01/2027;R$ 9.200,00;Bradesco;0876 / 12589-4;18/10/2026;02 - Entrada confirmada
+FAT-2026-034;900034;Isabela Monteiro Papelaria;294.681.735-60;17/10/2026;15/01/2027;R$ 1.580,00;Santander;4412 / 63985-2;18/10/2026;Aguardando processamento bancário
+FAT-2026-035;900035;Agropecuária Campo Verde Ltda;61.937.284/0001-05;18/10/2026;05/02/2027;R$ 19.400,00;Sicredi;0912 / 34871-6;19/10/2026;02 - Entrada confirmada
+FAT-2026-036;900036;Daniela Lopes Comércio;473.829.156-07;18/10/2026;20/01/2027;R$ 2.380,00;Caixa Econômica Federal;2201 / 78452-3;19/10/2026;11 - Espécie de documento não permitida
+FAT-2026-037;900037;Móveis e Decorações Imperial Ltda;94.628.175/0001-32;19/10/2026;10/02/2027;R$ 21.700,00;Banco do Brasil;1245 / 45872-1;20/10/2026;02 - Entrada confirmada
+FAT-2026-038;900038;Vinícius Rocha Eletrônicos;618.295.743-90;19/10/2026;25/01/2027;R$ 3.890,00;Itaú;3321 / 78541-0;20/10/2026;Remessa transmitida, sem retorno
+FAT-2026-039;900039;Atacadão das Utilidades Ltda;52.716.394/0001-68;20/10/2026;15/02/2027;R$ 14.300,00;Bradesco;0876 / 12589-4;21/10/2026;02 - Entrada confirmada
+FAT-2026-040;900040;Natália Mendes Variedades;836.194.275-41;20/10/2026;30/01/2027;R$ 2.950,00;Santander;4412 / 63985-2;21/10/2026;12 - Instrução de cobrança inválida

@@ -1,0 +1,19 @@
+Relatório de Bens Adquiridos - Titan Indústria de Telhas LTDA
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+Período de Aquisição do Bem;Descrição do Bem;Valor Original;Valor Depreciado;Centro de Custo;Conta Patrimonial
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+01/2025;Prensa hidráulica para fabricação de telhas;185000,00;18500,00;Produção;Máquinas e Equipamentos Industriais
+01/2025;Empilhadeira elétrica para movimentação de materiais;98000,00;9800,00;Logística;Veículos e Equipamentos de Movimentação
+02/2025;Misturador industrial de matéria-prima;67500,00;6750,00;Produção;Máquinas e Equipamentos Industriais
+03/2025;Caminhão para transporte de telhas;245000,00;36750,00;Expedição;Veículos
+03/2025;Computadores para setor administrativo;18500,00;4625,00;Administrativo;Equipamentos de Informática
+04/2025;Esteira transportadora industrial;52000,00;5200,00;Produção;Máquinas e Equipamentos Industriais
+05/2025;Sistema industrial de secagem de telhas;132000,00;9900,00;Produção;Instalações Industriais
+06/2025;Paleteira elétrica para estoque;28500,00;2850,00;Almoxarifado;Veículos e Equipamentos de Movimentação
+07/2025;Impressora industrial para identificação de produtos;22000,00;2200,00;Produção;Máquinas e Equipamentos Industriais
+08/2025;Mobiliário para escritório administrativo;14500,00;1450,00;Administrativo;Móveis e Utensílios
+09/2025;Sistema de exaustão industrial;43000,00;3225,00;Produção;Instalações Industriais
+11/2025;Gerador de energia para unidade fabril;89000,00;6675,00;Manutenção;Máquinas e Equipamentos Industriais
+01/2026;Máquina de corte automatizada para telhas;156000,00;11700,00;Produção;Máquinas e Equipamentos Industriais
+03/2026;Veículo utilitário para equipe de manutenção;112000,00;11200,00;Manutenção;Veículos
+06/2026;Servidor de armazenamento para sistemas industriais;32500,00;1625,00;Tecnologia da Informação;Equipamentos de Informática

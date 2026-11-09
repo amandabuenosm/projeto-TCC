@@ -1,0 +1,24 @@
+Demonstração das Mutações do Patrimônio Líquido - Feirão das Motos Comércio de Motocicletas LTDA
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+Período;Histórico;Capital Social;Reserva Legal;Reserva Estatutária;Reserva p/ Contingência;Lucros ou Prejuízos Acumulados;Total
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+01/2025;Saldo inicial do exercício;500000,00;25000,00;40000,00;15000,00;85000,00;665000,00
+01/2025;Integralização de capital pelos sócios;550000,00;25000,00;40000,00;15000,00;85000,00;715000,00
+02/2025;Lucro líquido apurado no período;550000,00;25000,00;40000,00;15000,00;112000,00;742000,00
+03/2025;Constituição de reserva legal;550000,00;30600,00;40000,00;15000,00;106400,00;742000,00
+03/2025;Destinação para reserva estatutária;550000,00;30600,00;48000,00;15000,00;98400,00;742000,00
+04/2025;Constituição de reserva para contingências;550000,00;30600,00;48000,00;20000,00;93400,00;742000,00
+05/2025;Distribuição de dividendos aos sócios;550000,00;30600,00;48000,00;20000,00;73400,00;722000,00
+06/2025;Lucro líquido apurado no período;550000,00;30600,00;48000,00;20000,00;108400,00;757000,00
+07/2025;Reversão parcial da reserva para contingências;550000,00;30600,00;48000,00;16000,00;112400,00;757000,00
+08/2025;Aumento de capital com incorporação de lucros;580000,00;30600,00;48000,00;16000,00;82400,00;757000,00
+09/2025;Constituição adicional de reserva legal;580000,00;33500,00;48000,00;16000,00;79500,00;757000,00
+10/2025;Destinação adicional para reserva estatutária;580000,00;33500,00;55000,00;16000,00;72500,00;757000,00
+11/2025;Lucro líquido apurado no período;580000,00;33500,00;55000,00;16000,00;105500,00;790000,00
+12/2025;Distribuição adicional de dividendos;580000,00;33500,00;55000,00;16000,00;85500,00;770000,00
+12/2025;Saldo final do exercício;580000,00;33500,00;55000,00;16000,00;85500,00;770000,00
+01/2026;Lucro líquido apurado no período;580000,00;33500,00;55000,00;16000,00;112500,00;797000,00
+02/2026;Constituição de reserva legal;580000,00;39125,00;55000,00;16000,00;106875,00;797000,00
+03/2026;Destinação para reserva de contingências;580000,00;39125,00;55000,00;22000,00;100875,00;797000,00
+04/2026;Distribuição de dividendos aos sócios;580000,00;39125,00;55000,00;22000,00;80875,00;777000,00
+05/2026;Ajuste positivo de exercícios anteriores;580000,00;39125,00;55000,00;22000,00;85875,00;782000,00

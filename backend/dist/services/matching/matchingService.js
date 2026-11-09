@@ -159,16 +159,28 @@ class ServicoCorrespondencia {
     static valoresAdicionaisIguais(campo, valorA, valorB, tolerancia) {
         const normalizarCabecalho = (texto) => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
         const cabecalho = normalizarCabecalho(campo);
-        const campoMonetario = /\b(valor|base de calculo|total|saldo|preco|price|amount|liquido|bruto|credito|debito|retencao|imposto|tributo)\b/.test(cabecalho);
-        if (campoMonetario) {
+        const campoData = /\b(data|date|vencimento|emissao|movimento|lancamento|lancto)\b/.test(cabecalho);
+        if (campoData) {
+            const dataA = normalizationService_js_1.ServicoNormalizacao.normalizarData(valorA);
+            const dataB = normalizationService_js_1.ServicoNormalizacao.normalizarData(valorB);
+            if (dataA !== null && dataB !== null) {
+                return dataA === dataB;
+            }
+        }
+        const campoPercentual = /\b(percentual|percent|roi|margem|crescimento)\b/.test(cabecalho);
+        const valorIndicaMoeda = [valorA, valorB].some((valor) => typeof valor === 'string' && /R\$|US\$|€|£|¥/.test(valor));
+        const campoMonetario = /\b(valor|base de calculo|total|saldo|preco|price|amount|liquido|bruto|credito|debito|retencao|tributo|custos?|receitas?|fornecedores?|folha|despesas?|impostos?|investimentos?|retorno|lucro|financeir\w*|faturamento|emprestimos?|fluxo|caixa|saidas?|pgto)\b/.test(cabecalho);
+        if (campoPercentual || campoMonetario || valorIndicaMoeda) {
             const numeroA = normalizationService_js_1.ServicoNormalizacao.normalizarValor(valorA);
             const numeroB = normalizationService_js_1.ServicoNormalizacao.normalizarValor(valorB);
             if (numeroA !== null && numeroB !== null) {
-                return Math.abs(numeroA - numeroB) <= tolerancia;
+                return campoPercentual
+                    ? numeroA === numeroB
+                    : Math.abs(numeroA - numeroB) <= tolerancia;
             }
         }
-        return String(valorA ?? '').trim().toUpperCase() ===
-            String(valorB ?? '').trim().toUpperCase();
+        return normalizationService_js_1.ServicoNormalizacao.normalizarTexto(valorA) ===
+            normalizationService_js_1.ServicoNormalizacao.normalizarTexto(valorB);
     }
     static criarItemAusente(sequencia, regA, regB, status) {
         const reg = regA || regB;
